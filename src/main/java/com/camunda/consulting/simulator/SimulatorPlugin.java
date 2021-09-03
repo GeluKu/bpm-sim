@@ -11,10 +11,11 @@ import org.camunda.bpm.BpmPlatform;
 import org.camunda.bpm.engine.ProcessEngine;
 import org.camunda.bpm.engine.delegate.VariableScope;
 import org.camunda.bpm.engine.impl.bpmn.deployer.BpmnDeployer;
-import org.camunda.bpm.engine.impl.bpmn.parser.BpmnParseListener;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
 import org.camunda.bpm.engine.impl.el.ExpressionManager;
+import org.camunda.bpm.engine.impl.interceptor.Command;
+import org.camunda.bpm.engine.impl.interceptor.CommandContext;
 import org.camunda.bpm.engine.impl.interceptor.CommandInterceptor;
 import org.camunda.bpm.engine.impl.javax.el.CompositeELResolver;
 import org.camunda.bpm.engine.impl.javax.el.ELContext;
@@ -29,9 +30,14 @@ import com.camunda.consulting.simulator.jobhandler.CompleteUserTaskJobHandler;
 import com.camunda.consulting.simulator.jobhandler.FireEventJobHandler;
 import com.camunda.consulting.simulator.jobhandler.StartProcessInstanceJobHandler;
 import com.camunda.consulting.simulator.modding.SimulatingBpmnDeployer;
-import com.camunda.consulting.simulator.modding.SimulationParseListener;
+import org.camunda.bpm.engine.impl.persistence.entity.JobEntity;
+import org.camunda.bpm.engine.runtime.Job;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimulatorPlugin implements ProcessEnginePlugin {
+
+  private static final Logger LOG = LoggerFactory.getLogger(SimulatorPlugin.class);
 
   public static final String PAYLOAD_GENERATOR_BEAN_NAME = "g";
 
@@ -142,10 +148,28 @@ public class SimulatorPlugin implements ProcessEnginePlugin {
   }
 
   public static void resetProcessEngine() {
-    resetProcessEngine(getProcessEngineConfiguration());
+    resetProcessEngine(true);
   }
 
-  private static void resetProcessEngine(ProcessEngineConfigurationImpl processEngineConfiguration) {
+  public static void resetProcessEngine(boolean cleanUpJobs) {
+    resetProcessEngine(getProcessEngineConfiguration(), cleanUpJobs);
+  }
+
+  private static void resetProcessEngine(ProcessEngineConfigurationImpl processEngineConfiguration, boolean cleanUpJobs) {
+    if (cleanUpJobs) {
+      processEngineConfiguration.getCommandExecutorTxRequired().execute(new Command<Void>() {
+        @Override
+        public Void execute(CommandContext commandContext) {
+          simulationCustomJobHandlers.stream().map(jobHandler->jobHandler.getType()).forEach(handlerType-> {
+            commandContext.getJobManager().findJobsByHandlerType(handlerType).forEach(job->{
+              commandContext.getJobManager().deleteJob((JobEntity)job);
+              LOG.debug("Deleted job {} with handler {}", job.getId(), handlerType);
+            });
+          });
+          return null;
+        }
+      });
+    }
     processEngineConfiguration.getCustomJobHandlers().clear();
     processEngineConfiguration.getCustomJobHandlers().addAll(originalCustomJobHandlers);
     processEngineConfiguration.getCustomPostCommandInterceptorsTxRequired().clear();
