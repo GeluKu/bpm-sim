@@ -4,7 +4,7 @@
 
 	<groupId>com.camunda.consulting</groupId>
 	<artifactId>camunda-bpm-simulator</artifactId>
-	<version>1.7.0-SNAPSHOT</version>
+	<version>1.7.0</version>
 
 	<packaging>jar</packaging>
 
@@ -105,6 +105,19 @@
 
 	</dependencies>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.9.1</version>
+				<configuration>
+					<source>8</source>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -116,7 +129,7 @@
 		<url>https://github.com/camunda-consulting/camunda-bpm-simulator</url>
 		<connection>scm:git:git@github.com:camunda-consulting/camunda-bpm-simulator.git</connection>
 		<developerConnection>scm:git:git@github.com:camunda-consulting/camunda-bpm-simulator.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>camunda-bpm-simulator-1.7.0</tag>
 	</scm>
 
 	<distributionManagement>
