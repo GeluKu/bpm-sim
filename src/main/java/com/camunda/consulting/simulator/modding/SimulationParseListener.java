@@ -141,12 +141,8 @@ public class SimulationParseListener implements BpmnParseListener {
 
   @Override
   public void parseUserTask(Element userTaskElement, ScopeImpl scope, ActivityImpl activity) {
-    boolean keepListeners = checkKeepListeners(userTaskElement, activity);
+    checkKeepListeners(userTaskElement, activity);
     addPayloadGeneratingListener(activity);
-
-    if (!keepListeners) {
-      ((UserTaskActivityBehavior) activity.getActivityBehavior()).getTaskDefinition().getTaskListeners().clear();
-    }
 
     addUserTaskCompleteJobCreatingListener(activity);
     addUserTaskClaimJobCreatingListener(activity);
