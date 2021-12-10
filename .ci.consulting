@@ -1,5 +1,4 @@
 @Library(["camunda-ci", "camunda-consulting"]) _
 
 def settings = getDefaultsForMavenDeploy() // function from `camunda-consulting` Library
-settings.githubSSHCredentials = 'github_camunda_consulting_ssh'
 buildMavenAndDeploy settings               // function from `camunda-ci` 
