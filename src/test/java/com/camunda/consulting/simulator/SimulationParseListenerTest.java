@@ -53,6 +53,7 @@ public class SimulationParseListenerTest {
         .doesNotContainKey("executionStartListenerExecuted") //
         .doesNotContainKey("executionEndListenerExecuted") //
         .doesNotContainKey("taskCreateListenerExecuted") //
+        .doesNotContainKey("taskCompleteListenerExecuted") //
         .doesNotContainKey("executionEndListenerOnBoundaryInMultiInstanceExecuted");
     assertThat(processInstance).variables() //
         .containsKey("implementationKept") //

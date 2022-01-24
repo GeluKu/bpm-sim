@@ -150,7 +150,7 @@ public class SimulationParseListener implements BpmnParseListener {
       taskDefinition.getTaskListeners().forEach((eventName, taskListeners)->{
         for (Iterator<TaskListener> i = taskListeners.iterator(); i.hasNext(); ) {
           TaskListener taskListener = i.next();
-          if ( ! taskDefinition.getBuiltinTaskListeners(eventName).contains(taskListener)) {
+          if ( taskDefinition.getBuiltinTaskListeners(eventName) == null || !taskDefinition.getBuiltinTaskListeners(eventName).contains(taskListener)) {
             i.remove();
           }
         }
