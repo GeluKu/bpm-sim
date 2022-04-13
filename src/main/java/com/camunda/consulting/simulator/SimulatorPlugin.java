@@ -30,6 +30,8 @@ import com.camunda.consulting.simulator.jobhandler.CompleteUserTaskJobHandler;
 import com.camunda.consulting.simulator.jobhandler.FireEventJobHandler;
 import com.camunda.consulting.simulator.jobhandler.StartProcessInstanceJobHandler;
 import com.camunda.consulting.simulator.modding.SimulatingBpmnDeployer;
+
+import org.camunda.bpm.engine.impl.persistence.entity.ExternalTaskEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.JobEntity;
 import org.camunda.bpm.engine.runtime.Job;
 import org.slf4j.Logger;
@@ -179,6 +181,22 @@ public class SimulatorPlugin implements ProcessEnginePlugin {
     processEngineConfiguration.getDeploymentCache().setDeployers(originalDeployers);
   }
 
+  public static void deleteAllExternalTasks() {
+	  deleteAllExternalTasks(getProcessEngineConfiguration());
+  }
+
+  private static void deleteAllExternalTasks(ProcessEngineConfigurationImpl processEngineConfiguration) {
+    processEngineConfiguration.getCommandExecutorTxRequired().execute(new Command<Void>() {
+      @Override
+      public Void execute(CommandContext commandContext) {
+    	  processEngineConfiguration.getExternalTaskService().createExternalTaskQuery().list().forEach(externalTask->{
+    		 commandContext.getExternalTaskManager().delete((ExternalTaskEntity)externalTask);
+    		 LOG.debug("Deleted external task {}", externalTask.getId());
+    	  });
+		return null;
+      }
+    });
+  }
 
   private void addPayloadGeneratorExpressionResolution(ProcessEngineConfigurationImpl processEngineConfiguration) {
     ExpressionManager expressionManager = processEngineConfiguration.getExpressionManager();
