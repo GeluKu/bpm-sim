@@ -18,6 +18,7 @@ import org.camunda.bpm.engine.impl.bpmn.helper.BpmnProperties;
 import org.camunda.bpm.engine.impl.bpmn.parser.BpmnParse;
 import org.camunda.bpm.engine.impl.bpmn.parser.BpmnParseListener;
 import org.camunda.bpm.engine.impl.core.model.CoreModelElement;
+import org.camunda.bpm.engine.impl.core.variable.mapping.IoMapping;
 import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.camunda.bpm.engine.impl.pvm.process.ActivityImpl;
 import org.camunda.bpm.engine.impl.pvm.process.ScopeImpl;
@@ -301,6 +302,10 @@ public class SimulationParseListener implements BpmnParseListener {
     addPayloadGeneratingListener(conditionalActivity);
   }
 
+  @Override
+  public void parseIoMapping(Element extensionElements, ActivityImpl activity, IoMapping inputOutput) {
+  }
+
   private void addPayloadGeneratingListener(ActivityImpl activity) {
     activity.addBuiltInListener(ExecutionListener.EVENTNAME_END, PayloadGeneratorListener.instance());
   }
@@ -379,5 +384,4 @@ public class SimulationParseListener implements BpmnParseListener {
       });
     }
   }
-
 }

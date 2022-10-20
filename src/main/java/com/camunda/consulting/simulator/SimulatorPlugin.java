@@ -1,6 +1,7 @@
 package com.camunda.consulting.simulator;
 
 import java.beans.FeatureDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ import org.camunda.bpm.engine.delegate.VariableScope;
 import org.camunda.bpm.engine.impl.bpmn.deployer.BpmnDeployer;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.camunda.bpm.engine.impl.cfg.ProcessEnginePlugin;
-import org.camunda.bpm.engine.impl.el.ExpressionManager;
+import org.camunda.bpm.engine.impl.el.JuelExpressionManager;
 import org.camunda.bpm.engine.impl.interceptor.Command;
 import org.camunda.bpm.engine.impl.interceptor.CommandContext;
 import org.camunda.bpm.engine.impl.interceptor.CommandInterceptor;
@@ -22,6 +23,10 @@ import org.camunda.bpm.engine.impl.javax.el.ELContext;
 import org.camunda.bpm.engine.impl.javax.el.ELResolver;
 import org.camunda.bpm.engine.impl.jobexecutor.JobHandler;
 import org.camunda.bpm.engine.impl.persistence.deploy.Deployer;
+import org.camunda.bpm.engine.impl.persistence.entity.ExternalTaskEntity;
+import org.camunda.bpm.engine.impl.persistence.entity.JobEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.camunda.consulting.simulator.commandinterceptor.CreateFireEventJobCommandInterceptor;
 import com.camunda.consulting.simulator.jobhandler.ClaimUserTaskJobHandler;
@@ -30,12 +35,6 @@ import com.camunda.consulting.simulator.jobhandler.CompleteUserTaskJobHandler;
 import com.camunda.consulting.simulator.jobhandler.FireEventJobHandler;
 import com.camunda.consulting.simulator.jobhandler.StartProcessInstanceJobHandler;
 import com.camunda.consulting.simulator.modding.SimulatingBpmnDeployer;
-
-import org.camunda.bpm.engine.impl.persistence.entity.ExternalTaskEntity;
-import org.camunda.bpm.engine.impl.persistence.entity.JobEntity;
-import org.camunda.bpm.engine.runtime.Job;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SimulatorPlugin implements ProcessEnginePlugin {
 
@@ -199,17 +198,20 @@ public class SimulatorPlugin implements ProcessEnginePlugin {
   }
 
   private void addPayloadGeneratorExpressionResolution(ProcessEngineConfigurationImpl processEngineConfiguration) {
-    ExpressionManager expressionManager = processEngineConfiguration.getExpressionManager();
+    JuelExpressionManager expressionManager = (JuelExpressionManager) processEngineConfiguration.getExpressionManager();
 
     CompositeELResolver compositeElResolver;
     try {
-      Method method = ExpressionManager.class.getDeclaredMethod("getCachedElResolver", (Class<?>[]) null);
+      Method method = JuelExpressionManager.class.getDeclaredMethod("ensureInitialized", (Class<?>[]) null);
       method.setAccessible(true);
-      Object invoke = method.invoke(expressionManager, new Object[]{});
+      method.invoke(expressionManager, new Object[]{});
 
-      compositeElResolver = (CompositeELResolver) invoke;
-    } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-      throw new RuntimeException("Unable to get cached el resolver", e);
+      Field field = JuelExpressionManager.class.getDeclaredField("elResolver");
+      field.setAccessible(true);
+
+      compositeElResolver = (CompositeELResolver) field.get(expressionManager);
+    } catch (NoSuchFieldException | NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+      throw new RuntimeException("Unable to get 'ensureInitialized' method or 'elResolver' field", e);
     }
 
     compositeElResolver.add(new ELResolver() {
