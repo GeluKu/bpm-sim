@@ -12,8 +12,8 @@
 	<description>Demonstrates the features and usage of the simulator plugin.</description>
 
 	<properties>
-		<camunda.version>7.18.0-ee</camunda.version>
-		<!-- <camunda.version>7.9.0</camunda.version> -->
+		<!-- <camunda.version>7.18.0-ee</camunda.version> -->
+		<camunda.version>7.19.0</camunda.version>
 		<springBoot.version>2.2.5.RELEASE</springBoot.version>
 
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -59,15 +59,15 @@
 
 		<dependency>
 			<groupId>org.camunda.bpm.springboot</groupId>
-			<artifactId>camunda-bpm-spring-boot-starter-webapp-ee</artifactId>
-			<!-- <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId> -->
-			<version>3.3.5</version>
+			<!-- <artifactId>camunda-bpm-spring-boot-starter-webapp-ee</artifactId> -->
+			<artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
+			<version>7.19.0</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.camunda.bpm.springboot</groupId>
 			<artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
-			<version>3.3.5</version>
+			<version>7.19.0</version>
 		</dependency>
 
 		<dependency>
@@ -78,6 +78,7 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>
@@ -95,18 +96,19 @@
 	</dependencies>
 
 	<repositories>
-		<!-- <repository> -->
-		<!-- <id>camunda-bpm-nexus</id> -->
-		<!-- <name>Camunda Maven Repository</name> -->
-		<!-- <url>https://artifacts.camunda.com/artifactory/public/</url> -->
-		<!-- </repository> -->
 		<repository>
-			<id>camunda-bpm-nexus-ee</id>
-			<name>Camunda Enterprise Maven 
-			Repository</name>
-			<url>https://artifacts.camunda.com/artifactory/camunda-bpm-ee/</url>
+		<id>camunda-bpm-nexus</id>
+		<name>Camunda Maven Repository</name>
+		<url>https://artifacts.camunda.com/artifactory/public/</url>
 		</repository>
 	</repositories>
+		<!-- <repository>-->
+			<!-- <id>camunda-bpm-nexus-ee</id>-->
+			<!-- <name>Camunda Enterprise Maven-->
+			<!-- Repository</name>-->
+			<!-- <url>https://artifacts.camunda.com/artifactory/camunda-bpm-ee/</url>-->
+		<!-- </repository>-->
+	<!-- </repositories>-->
 
 	<build>
 		<finalName>${project.artifactId}</finalName>
