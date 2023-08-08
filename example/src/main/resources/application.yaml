@@ -12,6 +12,7 @@ camunda.bpm:
     id: demo
     password: demo
     firstName: Demo
+
   filter:
     create: All tasks
 server.port: 8081
